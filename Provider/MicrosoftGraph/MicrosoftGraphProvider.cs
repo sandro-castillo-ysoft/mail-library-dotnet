@@ -69,19 +69,15 @@ namespace mail_library.Provider.MicrosoftGraph {
             throw new NotImplementedException();
         }
 
-        public async Task<Microsoft.Graph.GraphServiceClient> CreateGraphClientAsync(string accessToken, CancellationToken cancellationToken) {
+        public async Task<Microsoft.Graph.GraphServiceClient> CreateGraphClientAsync(CancellationToken cancellationToken) {
+
+            var accessToken = await GetAccessTokenAsync(cancellationToken);
+
             Microsoft.Graph.GraphServiceClient client = new(BaseUrl, new Microsoft.Graph.DelegateAuthenticationProvider(async (requestMessage) => {
                 requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", accessToken);
             }));
 
             return await Task.FromResult(client);
-        }
-
-        public async Task<Microsoft.Graph.GraphServiceClient> CreateGraphClientAsync(CancellationToken cancellationToken) {
-
-            var accessToken = await GetAccessTokenAsync(cancellationToken);
-
-            return await CreateGraphClientAsync(accessToken, cancellationToken);
         }
 
         private async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken) {
@@ -104,8 +100,9 @@ namespace mail_library.Provider.MicrosoftGraph {
 
                 authentication = await app.AcquireTokenInteractive(Scopes).ExecuteAsync(cancellationToken);
 
-            } catch (MsalUiRequiredException ex) when (ex.Message.Contains("", StringComparison.InvariantCultureIgnoreCase)) {
+            } catch (MsalUiRequiredException ex) when (ex.Message.Contains(ERR_MSAL_EMPTY, StringComparison.InvariantCultureIgnoreCase)) {
                 // IGNORE
+                // Expected error when running on empty cache
             }
 
             return string.Empty;
