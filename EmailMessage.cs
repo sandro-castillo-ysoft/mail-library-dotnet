@@ -4,15 +4,20 @@
 namespace mail_library {
     public partial class EmailMessage : IEmailMessage {
         internal string HtmlBody { get; set; }
+        internal string TextBody { get; set; }
         internal string Subject { get; set; }
+        internal MailAddress MailFrom { get; set; }
         internal MailAddressCollection MailTo { get; set; }
         internal MailAddressCollection MailCc { get; set; }
         internal MailAddressCollection MailBcc { get; set; }
         internal Dictionary<string, string> Attachments { get; set; }
 
         private EmailMessage() {
+
             HtmlBody = string.Empty;
+            TextBody = string.Empty;
             Subject = string.Empty;
+            MailFrom = new MailAddress(string.Empty);
             MailTo = new MailAddressCollection();
             MailCc = new MailAddressCollection();
             MailBcc = new MailAddressCollection();
